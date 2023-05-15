@@ -42,7 +42,7 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
     try {
         
-        const { email, password, googleId, userEmail ,name} = req.body
+        const { email, password, googleId,facebookId,githubId, userEmail ,name} = req.body
 
 
 
@@ -52,7 +52,16 @@ exports.login = async (req, res) => {
             findUsers = { email: email }
         } else if (googleId) {
             findUsers = { googleId: googleId} 
+        } else if (facebookId) {
+            findUsers = { facebookId: facebookId} 
         }
+        else if (githubId) {
+            findUsers = { githubId: githubId} 
+        }
+    
+
+
+        
 
 
         let finduser = await User.findOne(findUsers);
@@ -66,10 +75,35 @@ exports.login = async (req, res) => {
                 finduser.googleId = googleId;
                 finduser.email = userEmail;
         
-             return await finduser.save();
+              await finduser.save();
+
+               finduser.googleId = googleId;
+            }
+           else if (facebookId) {
+                console.log(123);
+                finduser = new User();
+                finduser.userName = name;
+                finduser.facebookId = facebookId;
+                finduser.email = userEmail;
+        
+              await finduser.save();
+
+                finduser.facebookId = facebookId;
+            }
+           else if (githubId) {
+                console.log(123);
+                finduser = new User();
+                finduser.userName = name;
+                finduser.githubId = githubId;
+                finduser.email = userEmail;
+        
+              await finduser.save();
+
+               finduser.githubId = githubId;
             }
         } else if (googleId) {
-            finduser.googleId = googleId;
+        } else if (facebookId) {
+        } else if (githubId) {
         }
 
         if (!finduser) {
