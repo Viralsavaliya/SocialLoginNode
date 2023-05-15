@@ -41,8 +41,8 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
     try {
-        
-        const { email, password, googleId,facebookId,githubId, userEmail ,name} = req.body
+
+        const { email, password, googleId, facebookId, githubId, twitterId , userEmail, name } = req.body
 
 
 
@@ -51,17 +51,18 @@ exports.login = async (req, res) => {
         if (email) {
             findUsers = { email: email }
         } else if (googleId) {
-            findUsers = { googleId: googleId} 
+            findUsers = { googleId: googleId }
         } else if (facebookId) {
-            findUsers = { facebookId: facebookId} 
+            findUsers = { facebookId: facebookId }
+        } else if (githubId) {
+            findUsers = { githubId: githubId }
+        } else if (twitterId) {
+            findUsers = { twitterId: twitterId }
         }
-        else if (githubId) {
-            findUsers = { githubId: githubId} 
-        }
-    
 
 
-        
+
+
 
 
         let finduser = await User.findOne(findUsers);
@@ -74,32 +75,43 @@ exports.login = async (req, res) => {
                 finduser.userName = name;
                 finduser.googleId = googleId;
                 finduser.email = userEmail;
-        
-              await finduser.save();
 
-               finduser.googleId = googleId;
+                await finduser.save();
+
+                finduser.googleId = googleId;
             }
-           else if (facebookId) {
+            else if (facebookId) {
                 console.log(123);
                 finduser = new User();
                 finduser.userName = name;
                 finduser.facebookId = facebookId;
                 finduser.email = userEmail;
-        
-              await finduser.save();
+
+                await finduser.save();
 
                 finduser.facebookId = facebookId;
             }
-           else if (githubId) {
+            else if (githubId) {
                 console.log(123);
                 finduser = new User();
                 finduser.userName = name;
                 finduser.githubId = githubId;
                 finduser.email = userEmail;
-        
-              await finduser.save();
 
-               finduser.githubId = githubId;
+                await finduser.save();
+
+                finduser.githubId = githubId;
+            }
+            else if (twitterId) {
+                console.log(123);
+                finduser = new User();
+                finduser.userName = name;
+                finduser.twitterId = twitterId;
+                finduser.email = userEmail;
+
+                await finduser.save();
+
+                finduser.twitterId = twitterId;
             }
         }
 
@@ -111,9 +123,9 @@ exports.login = async (req, res) => {
 
 
         if (email && password) {
-            
+
             const validpw = await bcrypt.compare(password, finduser.password)
-    
+
             if (!validpw) {
                 const error = new error('Invalid email Or password');
                 error.statuscode = 404;
@@ -146,7 +158,7 @@ exports.login = async (req, res) => {
     } catch (error) {
         res.status(400).json({
             success: false,
-            message:error.message
+            message: error.message
         })
     }
 }

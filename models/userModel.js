@@ -23,6 +23,9 @@ const userSchema = new Schema(
     },
     githubId:{
       type:String
+    },
+    twitterId:{
+      type:String
     }
   },
   {
