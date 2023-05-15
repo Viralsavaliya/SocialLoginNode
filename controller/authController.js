@@ -101,9 +101,6 @@ exports.login = async (req, res) => {
 
                finduser.githubId = githubId;
             }
-        } else if (googleId) {
-        } else if (facebookId) {
-        } else if (githubId) {
         }
 
         if (!finduser) {
