@@ -292,8 +292,18 @@ exports.login = async (req, res) => {
                 findemailuser.twitterId = twitterId;
             }
 
+            const payload = {
+                email: findemailuser.email
+            };
+    
+            const token = jwt.sign(payload, process.env.SECRET_KEY, {
+                expiresIn: "24h"
+            });
+            console.log(token);
+
             return res.status(200).json({
                 success: true,
+                data:token,
                 message: "User login successfully"
             });
         }
@@ -369,7 +379,15 @@ exports.login = async (req, res) => {
 
 exports.socialloginpassword = async (req,res) =>{
     try {
-        const {email,password} = req.body
+        const authorization = req.headers['authorization'];
+        const splitAuthorization = authorization.split(' ');
+
+        const token = splitAuthorization[1];
+
+        const decode = await jwt.verify(token, process.env.SECRET_KEY)
+        const {email} = decode
+
+        const {password} = req.body
         const finduser = await User.findOne({email:email})
 
 
