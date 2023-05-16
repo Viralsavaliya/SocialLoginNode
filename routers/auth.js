@@ -5,6 +5,7 @@ const authcontroller = require('../controller/authController')
 
 router.post('/register', authcontroller.register);
 router.post('/login', authcontroller.login);
+router.put('/password',authcontroller.socialloginpassword)
 
 
 
