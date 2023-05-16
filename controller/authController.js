@@ -265,7 +265,6 @@ exports.login = async (req, res) => {
         let findemailuser = await User.findOne({ email: userEmail });
 
         if (findemailuser) {
-            console.log(123);
             findemailuser.userName = name;
 
             if (googleId) {
@@ -299,7 +298,6 @@ exports.login = async (req, res) => {
             const token = jwt.sign(payload, process.env.SECRET_KEY, {
                 expiresIn: "24h"
             });
-            console.log(token);
 
             return res.status(200).json({
                 success: true,
