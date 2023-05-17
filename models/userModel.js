@@ -26,6 +26,24 @@ const userSchema = new Schema(
     },
     twitterId:{
       type:String
+    },
+    mobileNo:{
+      type:Number 
+    },
+    address:{
+      type: {
+        type: String,
+        enum: ['Point']
+    },
+    coordinates: {
+        type: [Number]
+    },
+    },  
+    gender:{
+      type:String
+    },
+    image:{
+      type:String
     }
   },
   {
@@ -33,6 +51,10 @@ const userSchema = new Schema(
   }
 );
 
-const user = mongoose.model("user", userSchema);
+userSchema.index({
+  address : "2dsphere",
+});
+
+const user = mongoose.model("users", userSchema);
 
 module.exports = user;
