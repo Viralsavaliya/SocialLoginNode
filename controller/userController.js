@@ -1,6 +1,8 @@
 const User = require('../models/userModel')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const multer = require("multer");
+const path = require("path");
 
 exports.getalluser = async (req, res) => {
     try {
@@ -97,9 +99,8 @@ exports.login = async (req, res) => {
 
 exports.getoneuser = async (req, res) => {
     try {
-        const id = req.headers;
-        console.log(id)
-
+        const id = req.user;
+        
         const finduser = await User.findById(id);
 
         if (!finduser) {
@@ -123,8 +124,7 @@ exports.getoneuser = async (req, res) => {
 
 exports.updateprofile = async (req, res) => {
     try {
-        const id = req.headers;
-
+        const id = req.user;
         const finduser = await User.findById(id);
 
         if (!finduser) {
@@ -132,18 +132,20 @@ exports.updateprofile = async (req, res) => {
             error.statuscode = 404;
             throw error
         }
-        const hashpassword = await bcrypt.hash(req.body.password, 10)
 
-        finduser.userName = req.body.userName;
-        finduser.email = req.body.email;
-        finduser.age = req.body.age;
-        finduser.password = hashpassword;
-        finduser.mobileNo = req.body.mobileNo;
+        finduser.userName = req.body.userName ? req.body.userName : finduser.userName;
+        finduser.email = req.body.email ? req.body.email : finduser.email;
+        finduser.age = req.body.age ? req.body.age : finduser.age;
+        finduser.image = req.body.image ? req.body.image : finduser.image;
+        finduser.mobileNo = req.body.mobileNo ? req.body.mobileNo : finduser.mobileNo;
+        const latitude = req.body.address?.latitude ?? finduser.address?.coordinates[0] ?? 0;
+        const longitude = req.body.address?.longitude ?? finduser.address?.coordinates[1] ?? 0;
+
         finduser.address = {
             type: 'Point',
-            coordinates: [req.body.address.latitude, req.body.address.longitude],
-          };
-        finduser.gender = req.body.gender;
+            coordinates: [parseFloat(latitude), parseFloat(longitude)],
+        };
+        finduser.gender = req.body.gender ? req.body.gender : finduser.gender;
 
         await finduser.save();
 
@@ -159,3 +161,77 @@ exports.updateprofile = async (req, res) => {
         })
     }
 };
+
+// exports.uploadimage = async (req, res) => {
+//     exports.uploadimage = async (req, res) => {
+//         console.log('requesting upload',req);
+//         try {
+//           upload.single('image')(req, res, async function (err) {
+//             if (err) {
+//               return res.end('Error uploading file.');
+//             }
+
+//             // Access the uploaded file using req.file
+//             const fileName = req.file.filename;
+//             console.log(fileName);
+
+//             return res.status(200).json({
+//               success: true,
+//               data: fileName,
+//               message: 'File uploaded successfully.',
+//             });
+//           });
+//         } catch (error) {
+//           return res.status(422).json({
+//             success: false,
+//             message: error.message,
+//           });
+//         }
+//       };
+
+//   };
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, "uploads");
+    },
+    filename: (req, file, cb) => {
+      cb(
+        null,
+        file.fieldname +
+          "-" +
+          Date.now() +
+          "." +
+          file.originalname.split(".").pop()
+      );
+    },
+  });
+  const upload = multer({ storage: storage }).single("file");
+  
+  exports.uploadimage = async (req, res) => {
+    try {
+      upload(req, res, async function (err) {
+        const fileName = req.file;
+        if (err) {
+          return res.end("Error uploading file.");
+        }
+        const datafilename = fileName.filename 
+        return res.status(200).json({
+          success: true,
+          data: datafilename,
+          message: "File uploaded successfully.",
+        });
+      });
+    } catch (error) {
+      return res.status(422).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  };
+
+
+
+
+
+

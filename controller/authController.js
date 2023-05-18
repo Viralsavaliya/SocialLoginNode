@@ -292,6 +292,7 @@ exports.login = async (req, res) => {
             }
 
             const payload = {
+                id: findemailuser.id,
                 email: findemailuser.email
             };
     

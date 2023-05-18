@@ -35,7 +35,7 @@ exports.authorize = async (req, res, next) => {
         const user = await User.findById(id).lean()
 
         req.user = user
-        req.headers = id
+        // req.headers = id
 
         next();
 
