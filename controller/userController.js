@@ -125,7 +125,7 @@ exports.getoneuser = async (req, res) => {
 exports.updateprofile = async (req, res) => {
     try {
         const id = req.user;
-        const finduser = await User.findById(id);
+        const finduser =    await User.findById(id);
 
         if (!finduser) {
             const error = new error('Invalid email Or password');
@@ -138,8 +138,8 @@ exports.updateprofile = async (req, res) => {
         finduser.age = req.body.age ? req.body.age : finduser.age;
         finduser.image = req.body.image ? req.body.image : finduser.image;
         finduser.mobileNo = req.body.mobileNo ? req.body.mobileNo : finduser.mobileNo;
-        const latitude = req.body.address?.latitude ?? finduser.address?.coordinates[0] ?? 0;
-        const longitude = req.body.address?.longitude ?? finduser.address?.coordinates[1] ?? 0;
+        const latitude = req.body.address?.lat ?? finduser.address?.coordinates[0] ?? 0;
+        const longitude = req.body.address?.lng ?? finduser.address?.coordinates[1] ?? 0;
 
         finduser.address = {
             type: 'Point',
