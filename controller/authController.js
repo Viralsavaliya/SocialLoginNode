@@ -54,12 +54,8 @@ exports.login = async (req, res) => {
             findUsers.email = email;
         } else if (googleId) {
             findUsers.googleId = googleId;
-        } else if (facebookId) {
-            findUsers.facebookId = facebookId;
         } else if (githubId) {
             findUsers.githubId = githubId;
-        } else if (twitterId) {
-            findUsers.twitterId = twitterId;
         }
 
         let finduser = await User.findOne(findUsers);
@@ -67,16 +63,12 @@ exports.login = async (req, res) => {
 
        
         if (findemailuser) {
-            findemailuser.userName = name;
+            findemailuser.userName =  findemailuser.userName ?  findemailuser.userName : name  ;
 
             if (googleId) {
                 findemailuser.googleId = findemailuser.googleId || googleId;
-            } else if (facebookId) {
-                findemailuser.facebookId = findemailuser.facebookId || facebookId;
             } else if (githubId) {
                 findemailuser.githubId = findemailuser.githubId || githubId;
-            } else if (twitterId) {
-                findemailuser.twitterId = findemailuser.twitterId || twitterId;
             }
 
             findemailuser.email = userEmail;
@@ -85,13 +77,9 @@ exports.login = async (req, res) => {
 
             if (googleId) {
                 findemailuser.googleId = googleId;
-            } else if (facebookId) {
-                findemailuser.facebookId = facebookId;
             } else if (githubId) {
                 findemailuser.githubId = githubId;
-            } else if (twitterId) {
-                findemailuser.twitterId = twitterId;
-            }
+            } 
 
             const payload = {
                 id: findemailuser.id,
@@ -116,12 +104,8 @@ exports.login = async (req, res) => {
 
             if (googleId) {
                 finduser.googleId = googleId;
-            } else if (facebookId) {
-                finduser.facebookId = facebookId;
             } else if (githubId) {
                 finduser.githubId = githubId;
-            } else if (twitterId) {
-                finduser.twitterId = twitterId;
             }
 
             finduser.email = userEmail;
@@ -131,12 +115,8 @@ exports.login = async (req, res) => {
 
             if (googleId) {
                 finduser.googleId = googleId;
-            } else if (facebookId) {
-                finduser.facebookId = facebookId;
             } else if (githubId) {
                 finduser.githubId = githubId;
-            } else if (twitterId) {
-                finduser.twitterId = twitterId;
             }
 
             return res.status(200).json({
