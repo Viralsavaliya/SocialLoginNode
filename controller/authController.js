@@ -174,8 +174,15 @@ exports.socialloginpassword = async (req,res) =>{
         const decode = await jwt.verify(token, process.env.SECRET_KEY)
         const {email} = decode
 
-        const {password} = req.body
+        const {password ,oldpassword} = req.body
         const finduser = await User.findOne({email:email})
+
+        if(oldpassword){
+            const confirmpw = await bcrypt.compare(oldpassword, finduser.password);
+            if(!confirmpw){
+                throw new Error("password mismatch");
+            }
+        }
 
 
         const hashpw = await bcrypt.hash(password, 10)
@@ -186,7 +193,7 @@ exports.socialloginpassword = async (req,res) =>{
         return res.status(200).json({
             success:true,
             data:finduser,
-            message:"password add successfully"
+            message:"password update successfully"
         })
     } catch (error) {
         return res.status(422).json({
