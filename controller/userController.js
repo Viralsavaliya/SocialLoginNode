@@ -162,34 +162,6 @@ exports.updateprofile = async (req, res) => {
     }
 };
 
-// exports.uploadimage = async (req, res) => {
-//     exports.uploadimage = async (req, res) => {
-//         console.log('requesting upload',req);
-//         try {
-//           upload.single('image')(req, res, async function (err) {
-//             if (err) {
-//               return res.end('Error uploading file.');
-//             }
-
-//             // Access the uploaded file using req.file
-//             const fileName = req.file.filename;
-//             console.log(fileName);
-
-//             return res.status(200).json({
-//               success: true,
-//               data: fileName,
-//               message: 'File uploaded successfully.',
-//             });
-//           });
-//         } catch (error) {
-//           return res.status(422).json({
-//             success: false,
-//             message: error.message,
-//           });
-//         }
-//       };
-
-//   };
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {

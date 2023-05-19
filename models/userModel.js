@@ -55,6 +55,6 @@ userSchema.index({
   address : "2dsphere",
 });
 
-const user = mongoose.model("users", userSchema);
+const user = mongoose.model("userdata", userSchema);
 
 module.exports = user;
