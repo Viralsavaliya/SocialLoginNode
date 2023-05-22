@@ -187,7 +187,7 @@ const storage = multer.diskStorage({
         if (err) {
           return res.end("Error uploading file.");
         }
-        const datafilename = fileName.filename 
+        const datafilename = fileName?.filename 
         return res.status(200).json({
           success: true,
           data: datafilename,

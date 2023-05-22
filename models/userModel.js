@@ -44,6 +44,10 @@ const userSchema = new Schema(
     },
     image:{
       type:String
+    },
+    otp:{
+      type:String,
+      default:null
     }
   },
   {

@@ -1,6 +1,7 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken')
+const nodemailer = require('nodemailer')
 
 
 
@@ -199,6 +200,154 @@ exports.socialloginpassword = async (req,res) =>{
         return res.status(422).json({
             success:false,
             message:error.message
+        })
+    }
+}
+
+const Emailuser = process.env.EMAIL_USER
+const Emailpassword = process.env.EMAIL_PASSWORD
+
+let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    Port: 465,
+    secure: false,
+    auth: {
+        user: Emailuser,
+        pass: Emailpassword
+    }
+})
+
+exports.sendEmail = async (req, res) => {
+    const { email } = req.body
+    
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        res.status(200).json({
+            success: false,
+            message: "user not found"
+        })
+    }
+
+    // const userid = user.id
+
+    // const payload = {
+    //     id: userid
+    // }
+
+    // const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "5m" })
+
+    const otpas = Math.floor(Math.random() * 1000000);;
+    const userid = user.id
+
+    const payload = {
+        id: userid
+    }
+
+    const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "5m" })
+
+  
+   
+
+    let info = await transporter.sendMail({
+        from: `"node" <${Emailuser}>`,
+        to: email,
+        subject: "welcome to message",
+        text: "hello  your password forgot",
+        html: `OTP:- ${otpas}`
+
+    })
+
+
+    
+    user.otp = otpas;
+    await user.save();
+
+    return res.status(200).json({
+        success: true,
+        data:token,
+        message: "your mail successfully"
+    })
+
+
+}
+
+exports.verificationotp = async (req, res) => {
+    try {
+        const authorization = req.headers['authorization'];
+        const splitAuthorization = authorization.split(' ');
+        const token = splitAuthorization[1];
+        const decode = await jwt.verify(token, process.env.SECRET_KEY)
+        const { id } = decode
+        const user = await User.findById(id);
+
+        const { otp } = req.body;
+
+        if (!user) {
+        return res.status(400).json({
+                success: false,
+                message: "user not found"
+            })
+        }   
+        const userotp = user.otp
+
+        if (otp!== userotp) {
+            return  res.status(400).json({
+                success: false,
+                message: "invalid otp"
+            })
+        }
+
+        user.otp = null;
+        await user.save();
+    
+
+        return res.status(200).json({
+            success: true,
+            message: "OTP verification successful",
+          });
+
+        
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            message: error.message,
+        })
+    }
+}
+
+exports.resetpassword = async (req,res) => {
+    try {
+        const authorization = req.headers['authorization'];
+        const splitAuthorization = authorization.split(' ');
+        const token = splitAuthorization[1];
+        const decode = await jwt.verify(token, process.env.SECRET_KEY)
+        const { id } = decode
+        const user = await User.findById(id);
+
+        const { password } = req.body;
+
+        if (!user) {
+        return res.status(400).json({
+                success: false,
+                message: "user not found"
+            })
+        }   
+        const userpassword = user.password
+
+        user.password = userpassword;
+
+        await user.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Password Reset successful",
+          });
+
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            message: error.message,
         })
     }
 }
