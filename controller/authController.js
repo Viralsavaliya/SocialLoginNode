@@ -333,9 +333,9 @@ exports.resetpassword = async (req,res) => {
                 message: "user not found"
             })
         }   
-        const userpassword = user.password
-
-        user.password = userpassword;
+        // const userpassword = user.password
+        const hashpw = await bcrypt.hash(password, 10)
+        user.password = hashpw;
 
         await user.save();
 
