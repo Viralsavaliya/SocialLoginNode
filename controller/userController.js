@@ -140,6 +140,7 @@ exports.updateprofile = async (req, res) => {
         finduser.mobileNo = req.body.mobileNo ? req.body.mobileNo : finduser.mobileNo;
         const latitude = req.body.address?.lat ?? finduser.address?.coordinates[0] ?? 0;
         const longitude = req.body.address?.lng ?? finduser.address?.coordinates[1] ?? 0;
+        // finduser.status = req.body.status ? req.body.status : finduser.status;
 
         finduser.address = {
             type: 'Point',

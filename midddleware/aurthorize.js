@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
+const Admin = require('../models/adminModel');
 
 exports.authorize = async (req, res, next) => {
     try {
@@ -30,10 +31,19 @@ exports.authorize = async (req, res, next) => {
             throw err
         }
 
-        const { id } = decode
+        const { id } = decode       
 
-        const user = await User.findById(id).lean()
-
+        let user;
+        if (req.baseUrl === '/api') {
+            user = await User.findById(id);
+        } else if (req.baseUrl === '/admin') {
+            user = await Admin.findById(id);
+        }   
+        if (user === null) {
+            const error = new Error("Authorization token invalid")
+            error.statusCode = 422
+            throw error
+        }
         req.user = user
         // req.headers = id
 

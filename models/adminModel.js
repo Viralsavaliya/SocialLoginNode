@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const userSchema = new Schema(
+const adminSchema = new Schema(
   {
-    userName: {
+    adminName: {
       type: String,
     },
     email: {
@@ -18,13 +18,7 @@ const userSchema = new Schema(
     googleId:{
       type:String
     },
-    facebookId:{
-      type:String
-    },
     githubId:{
-      type:String
-    },
-    twitterId:{
       type:String
     },
     mobileNo:{
@@ -48,10 +42,6 @@ const userSchema = new Schema(
     otp:{
       type:String,
       default:null
-    },
-    status:{
-      type:Boolean,
-      default:true
     }
   },
   {
@@ -59,10 +49,10 @@ const userSchema = new Schema(
   }
 );
 
-userSchema.index({
+adminSchema.index({
   address : "2dsphere",
 });
 
-const user = mongoose.model("userdata", userSchema);
+const admin = mongoose.model("admin", adminSchema);
 
-module.exports = user;
+module.exports = admin;

@@ -5,6 +5,7 @@ const express = require('express');
 const app = express();
 const port = 3000;
 const user = require('./routers/user')
+const admin = require('./routers/admin/adminrouter')
 app.use(express.json({ limit: "50mb" }))
 const cors = require('cors');
 const path = require('path');
@@ -15,6 +16,7 @@ app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }))
 app.use('/', express.static(path.join(__dirname, '/uploads')));
 
 app.use('/api', cors(), user)
+app.use('/admin',cors(), admin);
 
 
 
