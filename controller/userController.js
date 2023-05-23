@@ -99,7 +99,7 @@ exports.login = async (req, res) => {
 
 exports.getoneuser = async (req, res) => {
     try {
-        const id = req.user;
+        const id = req.user.id;
         
         const finduser = await User.findById(id);
 
