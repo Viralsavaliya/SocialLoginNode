@@ -1,5 +1,7 @@
 const Post = require('../models/postModel')
 const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
 
 exports.getallpost = async (req, res) => {
     try {
@@ -75,7 +77,7 @@ exports.addpost = async (req, res) => {
       });
     }
   };
-
+  
   exports.oneuserpost = async (req, res) => {
     try {
         const {id} = req.user;
@@ -93,5 +95,33 @@ exports.addpost = async (req, res) => {
           });
         
     }
+}
+
+exports.deletepost = async (req, res) => {
+  try {
+      const { id } = req.params;
+    const findpost = await Post.findById({ _id: id });
+
+
+    const image = findpost.image;
+    if (image) {
+      if (fs.existsSync(path.join(__dirname) + image)) {
+        fs.unlinkSync(path.join(__dirname) + image);
+      }
+    }
+    const deletepost = await Post.deleteOne({ _id: id });
+
+      res.status(200).json({
+        success : true,
+        data : deletepost,
+        message : "Post delete successfully"
+      });
+  } catch (error) {
+      res.status(400).json({
+          success : false,
+          message : error.message
+        });
+      
+  }
 }
   
