@@ -62,6 +62,18 @@ exports.login = async (req, res) => {
         let finduser = await User.findOne(findUsers);
         let findemailuser = await User.findOne({ email: userEmail });
 
+
+        if(finduser.status === false){
+            const error = new error('User activity is disabal');
+            error.statuscode = 404;
+            throw error
+        }
+
+        if(findemailuser.status === false){
+            const error = new error('User activity is disabal');
+            error.statuscode = 404;
+            throw error
+        }
        
         if (findemailuser) {
             findemailuser.userName =  findemailuser.userName ?  findemailuser.userName : name  ;

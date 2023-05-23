@@ -172,14 +172,14 @@ exports.userdatadget = async (req, res) => {
         const limitValue = req.query.limit;
         let pageValue = req.query.page;
         const skipValue = limitValue * pageValue;
-        const user = await User.find() .limit(limitValue).skip(skipValue);
+        const user = await User.find().limit(limitValue).skip(skipValue);
 
         const totaluser = await User.count();
 
 
         res.status(200).json({
             success: true,
-            data: {user:user, count:totaluser},
+            data: { user: user, count: totaluser },
             Message: "All Admin Get Successfully"
         });
     } catch (error) {
@@ -187,5 +187,48 @@ exports.userdatadget = async (req, res) => {
             success: false,
             Message: error.Message
         });
+    }
+}
+
+exports.userstatusupadate = async (req, res) => {
+    try {
+
+        const id = req.query.id;
+        const user = await User.findOne({_id:id});
+
+        user.status = !user.status;
+         
+         await user.save();
+
+        res.status(200).json({
+            success: true,
+            data: user,
+            Message: "User Status Updated Successfully"
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            Message: error.Message
+        });
+    }
+}
+
+exports.viewuser = async (req,res) => {
+    try {
+        const id = req.query.id;
+        
+        const finduser = await User.findOne({_id:id});
+
+
+        res.status(200).json({
+            success: true,
+            data: finduser,
+            message: "User get Successfully"
+        })
+    } catch (error) {
+        res.status(401).json({
+            success: false,
+            message: error.message
+        })
     }
 }
