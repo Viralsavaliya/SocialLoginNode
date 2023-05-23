@@ -34,7 +34,7 @@ exports.authorize = async (req, res, next) => {
         const { id } = decode       
 
         let user;
-        if (req.baseUrl === '/api') {
+        if (req.baseUrl === '/api' || '/api/post') {
             user = await User.findById(id);
         } else if (req.baseUrl === '/admin') {
             user = await Admin.findById(id);
