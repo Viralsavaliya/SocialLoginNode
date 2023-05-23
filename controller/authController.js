@@ -46,7 +46,7 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
     try {
-        const { email, password, googleId, facebookId, githubId, twitterId, userEmail, name } = req.body;
+        const { email, password, googleId,  githubId, userEmail, name } = req.body;
 
         let findUsers = {};
 
@@ -62,18 +62,22 @@ exports.login = async (req, res) => {
         let finduser = await User.findOne(findUsers);
         let findemailuser = await User.findOne({ email: userEmail });
 
-
-        if(finduser.status === false){
-            const error = new error('User activity is disabal');
-            error.statuscode = 404;
-            throw error
+        if(finduser){
+            if(finduser.status === false){
+                const error = new error('User activity is disabal');
+                error.statuscode = 404;
+                throw error
+            }
+        }
+        if(findemailuser){
+            if(findemailuser.status === false){
+                const error = new error('User activity is disabal');
+                error.statuscode = 404;
+                throw error
+            }
         }
 
-        if(findemailuser.status === false){
-            const error = new error('User activity is disabal');
-            error.statuscode = 404;
-            throw error
-        }
+      
        
         if (findemailuser) {
             findemailuser.userName =  findemailuser.userName ?  findemailuser.userName : name  ;
