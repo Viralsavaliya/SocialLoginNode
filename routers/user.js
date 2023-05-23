@@ -2,9 +2,8 @@ const express = require('express');
 const router = express.Router();
 const usercontroller =require('../controller/userController')
 const auth = require('./auth')
+const post =require('./post')
 
-const multer = require('multer');
-const path = require('path');
 const {authorize} = require('../midddleware/aurthorize')
 // router.use('/', express.static(path.join(__dirname, '/uploads')));
 
@@ -17,6 +16,7 @@ router.post('/upload-image',authorize,usercontroller.uploadimage)
 
 
 router.use('/auth',auth)
+router.use('/post',post)
 
 module.exports = router;
 
