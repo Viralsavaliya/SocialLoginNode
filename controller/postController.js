@@ -5,7 +5,7 @@ const path = require("path");
 
 exports.getallpost = async (req, res) => {
     try {
-        const post = await Post.find({status:'Approved'});
+        const post = await Post.find({status:'Approved'}).populate("userid");
 
       
         res.status(200).json({
