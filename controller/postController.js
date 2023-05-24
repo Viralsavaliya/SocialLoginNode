@@ -105,8 +105,9 @@ exports.deletepost = async (req, res) => {
 
     const image = findpost.image;
     if (image) {
-      if (fs.existsSync(path.join(__dirname) + image)) {
-        fs.unlinkSync(path.join(__dirname) + image);
+      console.log(image);
+      if (fs.existsSync(path.join(__dirname,"../uploads/" + image))) {
+        fs.unlinkSync(path.join(__dirname,"../uploads/" + image));
       }
     }
     const deletepost = await Post.deleteOne({ _id: id });

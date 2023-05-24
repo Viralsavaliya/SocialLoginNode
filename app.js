@@ -13,7 +13,7 @@ const multer = require('multer');
 var bodyParser = require('body-parser')
 app.use(bodyParser.json({ limit: "50mb" }))
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }))
-app.use('/', express.static(path.join(__dirname, '/uploads')));
+app.use('/', express.static(path.join(__dirname,'/uploads')));
 
 app.use('/api', cors(), user)
 app.use('/admin',cors(), admin);

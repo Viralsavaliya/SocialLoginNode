@@ -2,6 +2,7 @@ const Admin = require('../models/adminModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken')
 const User = require('../models/userModel');
+const Post = require('../models/postModel');
 
 exports.getalladmin = async (req, res) => {
     try {
@@ -213,6 +214,7 @@ exports.userstatusupadate = async (req, res) => {
     }
 }
 
+
 exports.viewuser = async (req,res) => {
     try {
         const id = req.query.id;
@@ -232,3 +234,77 @@ exports.viewuser = async (req,res) => {
         })
     }
 }
+
+exports.allpost = async (req,res) => {
+    try {   
+        const limitValue = req.query.limit;
+        let pageValue = req.query.page;
+        const skipValue = limitValue * pageValue;
+        
+        const findpost = await Post.find().limit(limitValue).skip(skipValue);
+
+        const totalpost = await Post.count();
+
+
+        res.status(200).json({
+            success: true,
+            data: { post: findpost, count: totalpost },
+            message: "User get Successfully"
+        })
+    } catch (error) {
+        res.status(401).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+exports.viewpost = async (req,res) => {
+    try {
+        const id = req.query.id;
+        
+        const findpost = await Post.findOne({_id:id});
+
+
+        res.status(200).json({
+            success: true,
+            data: findpost,
+            message: "post get Successfully"
+        })
+    } catch (error) {
+        res.status(401).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+exports.poststatusupadate = async (req, res) => {
+    try {
+
+        const id = req.query.id;
+        const {status} = req.body
+        const post = await Post.findById(id);
+
+        if(status == 0){
+            post.status = "Pending";
+        }else if(status == 1){
+            post.status = "Approved";
+        }else if(status == 2){
+            post.status = "Rejected";
+        }
+
+         await post.save();
+
+        res.status(200).json({
+            success: true,
+            data: post,
+            Message: "post Status Updated Successfully"
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            Message: error.Message
+        });
+    }
+    }

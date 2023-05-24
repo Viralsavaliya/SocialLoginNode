@@ -9,6 +9,9 @@ router.post('/adminlogin',admincontroller.adminlogin)
 router.get('/userget', authorize, admincontroller.userdatadget)
 router.post('/userstatusupadate',authorize,admincontroller.userstatusupadate)
 router.get('/viewuser', authorize, admincontroller.viewuser)
+router.get('/allpost', authorize, admincontroller.allpost)
+router.get('/viewpost', authorize, admincontroller.viewpost)
+router.post('/poststatusupadate',authorize,admincontroller.poststatusupadate)
 
 
 module.exports = router;
