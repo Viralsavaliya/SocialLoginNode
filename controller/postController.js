@@ -5,8 +5,9 @@ const path = require("path");
 
 exports.getallpost = async (req, res) => {
     try {
-        const post = await Post.find();
+        const post = await Post.find({status:'Approved'});
 
+      
         res.status(200).json({
           success : true,
           data : post,
@@ -78,7 +79,7 @@ exports.addpost = async (req, res) => {
     }
   };
   
-  exports.oneuserpost = async (req, res) => {
+exports.oneuserpost = async (req, res) => {
     try {
         const {id} = req.user;
         const post = await Post.find({userid: id});
