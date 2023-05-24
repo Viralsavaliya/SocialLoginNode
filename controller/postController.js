@@ -78,6 +78,69 @@ exports.addpost = async (req, res) => {
       });
     }
   };
+
+exports.updatepost = async (req, res) => {
+  try {
+
+   
+      
+    const storage = multer.diskStorage({
+      destination: (req, file, cb) => {
+        cb(null, "uploads");
+      },
+      filename: (req, file, cb) => {
+        cb(
+          null,
+          file.fieldname + "-" + Date.now() + "." + file.originalname.split(".").pop()
+          );
+      },
+    });
+    
+    const upload = multer({ storage: storage }).single("file");
+    
+    upload(req, res, async function (err) {
+      if (err) {
+        return res.status(400).json({
+          success: false,
+          message: "Error uploading file",
+        });
+      }
+    })
+
+    let datafilename;
+
+    const { id } = req.params;
+
+    const findpost = await Post.findById({ _id: id });
+
+    const deleteimage = findpost.image;
+
+    const { title, discripation } = req.body;
+
+    findpost.title = findpost.title === "" ? findpost.title : title;
+    findpost.discripation = findpost.discripation === "" ? findpost.discripation : discripation;
+    findpost.image = req.file ? req.file.filename : deleteimage;
+
+    if (req.file && fs.existsSync(path.join(__dirname, "../uploads/") + deleteimage)) {
+      fs.unlinkSync(path.join(__dirname, "../uploads/") + deleteimage);
+    }
+
+    const saveblog = await findpost.save();
+
+    return res.status(200).json({
+      success: true,
+      data: saveblog,
+      message: "post update Successfully",
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+  }
+
+
   
 exports.oneuserpost = async (req, res) => {
     try {
