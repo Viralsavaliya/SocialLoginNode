@@ -44,8 +44,8 @@ exports.addlike = async (req, res) => {
 
 exports.deletelike = async (req, res) => {
     try {
-
-        const {postid,userid} = req.query;
+        const userid = req.user._id
+        const {postid} = req.query;
 
         const deletelike = await Like.deleteOne({ postid: postid, userid: userid});
 
