@@ -35,7 +35,7 @@ exports.addlike = async (req, res) => {
             message:'Add likes successfully'
         });
     } catch (error) {
-        res.status(200).json({
+        res.status(400).json({
             success:false,
             message:error.message
         });
@@ -55,7 +55,7 @@ exports.deletelike = async (req, res) => {
             message:'delet likes successfully'
         });
     } catch (error) {
-        res.status(200).json({
+        res.status(400).json({
             success:false,
             message:error.message
         });

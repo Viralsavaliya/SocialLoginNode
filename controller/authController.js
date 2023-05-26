@@ -260,7 +260,7 @@ exports.sendEmail = async (req, res) => {
         id: userid
     }
 
-    const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "5m" })
+    const token =   jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "5m" })
 
   
    

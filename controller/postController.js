@@ -57,6 +57,51 @@ exports.getallpost = async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: 'userdatas',
+          localField: 'userid',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      {
+        $lookup: {
+          from: 'comments',
+          let: { postId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$postid', '$$postId'] },
+              },
+            },
+            {
+              $lookup: {
+                from: 'userdatas',
+                localField: 'userid',
+                foreignField: '_id',
+                as: 'user',
+              },
+            },
+            {
+              $addFields: {
+                userName: { $arrayElemAt: ['$user.userName', 0] },
+                image: { $arrayElemAt: ['$user.image', 0] },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                comment: 1,
+                userId: 1,
+                userName: 1,
+                image:1,
+              },
+            },
+          ],
+          as: 'comments',
+        },
+      },
+      {
         $project: {
           _id: 1,
           title: 1,
@@ -68,6 +113,7 @@ exports.getallpost = async (req, res) => {
           userimage: { $arrayElemAt: ['$user.image', 0] },
           likescount: 1,
           isLikedByUser: 1,
+          comments: 1
         },
       },
     ]);
