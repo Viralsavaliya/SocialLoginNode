@@ -8,9 +8,10 @@ const { ObjectId } = require('mongoose').Types;
 exports.getallpost = async (req, res) => {
   try {
     const userId = new ObjectId(req.user.id);
+    const page = parseInt(req.query.page) || 1; // Current page number
+    const limit = parseInt(req.query.limit) || 3; // Number of posts per page
 
-
-    const post = await Post.aggregate([
+    const pipeline = [
       { $match: { status: 'Approved' } },
       {
         $lookup: {
@@ -94,7 +95,7 @@ exports.getallpost = async (req, res) => {
                 comment: 1,
                 userId: 1,
                 userName: 1,
-                image:1,
+                image: 1,
               },
             },
           ],
@@ -116,13 +117,36 @@ exports.getallpost = async (req, res) => {
           comments: 1
         },
       },
+      {
+        $skip: (page - 1) * limit, // Skips documents based on the current page and limit
+      },
+      {
+        $limit: limit, // Limits the number of documents per page
+      },
+    ];
+
+    const countPipeline = [
+      { $match: { status: 'Approved' } },
+      { $count: 'total' }, // Count the total number of documents
+    ];
+
+    const [post, countResult] = await Promise.all([
+      Post.aggregate(pipeline),
+      Post.aggregate(countPipeline),
     ]);
 
-
+    const totalPosts = countResult.length > 0 ? countResult[0].total : 0;
+    const totalPages = Math.ceil(totalPosts / limit);
 
     res.status(200).json({
       success: true,
       data: post,
+      pagination: {
+        totalPosts,
+        totalPages,
+        currentPage: page,
+        postsPerPage: limit,
+      },
       message: 'Posts retrieved successfully',
     });
   } catch (error) {
