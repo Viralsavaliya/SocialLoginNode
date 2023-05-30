@@ -1,4 +1,5 @@
 const User = require('../models/userModel')
+const Follow = require('../models/followModel')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require("multer");
@@ -20,6 +21,11 @@ exports.getalluser = async (req, res) => {
         })
     }
 }
+
+
+
+
+  
 
 exports.addUser = async (req, res) => {
 

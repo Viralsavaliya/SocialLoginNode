@@ -15,7 +15,7 @@ exports.authorize = async (req, res, next) => {
         const splitAuthorization = authorization.split(' ');
 
         const token = splitAuthorization[1];
-
+        console.log(token);
         if (!token) {
             const error = new Error("Authorization token invalid")
             error.statusCode = 422
@@ -34,7 +34,8 @@ exports.authorize = async (req, res, next) => {
         const { id } = decode       
 
         let user;
-        if (req.baseUrl === '/api' || req.baseUrl === '/api/post' || req.baseUrl === '/api/like' ||req.baseUrl === '/api/comment') {
+        console.log(req.baseUrl);
+        if (req.baseUrl === '/api' || req.baseUrl === '/api/post' || req.baseUrl === '/api/like' ||req.baseUrl === '/api/comment' ||req.baseUrl === '/api/follow') {
             user = await User.findById(id);
         } else if (req.baseUrl === '/admin') {
             user = await Admin.findById(id);
@@ -46,7 +47,6 @@ exports.authorize = async (req, res, next) => {
         }
         req.user = user
         // req.headers = id
-
         next();
 
     } catch (error) {
