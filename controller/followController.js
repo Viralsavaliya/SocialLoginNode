@@ -110,7 +110,6 @@ exports.rejectrequest = async (req, res) => {
 exports.getallfollowuser = async (req, res) => {
     try {
       const userId = req.user._id;
-      console.log(userId);
       const users = await User.aggregate([
         {
           $match: {
