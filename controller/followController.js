@@ -17,7 +17,7 @@ exports.getallfollwer = async (req, res) => {
     }
 }
 
-exports.sendfollowrequest = async (req, res) => {   
+exports.sendfollowrequest = async (req, res) => {
     try {
         const id = req.user._id;
         const { followerId } = req.query;
@@ -45,9 +45,9 @@ exports.acceptrequestrequest = async (req, res) => {
     try {
         const id = req.user._id;
 
-        const  aceptid  = req.query.id
+        const aceptid = req.query.id
 
-        const findrequest = await Follow.findOne({ _id:aceptid});
+        const findrequest = await Follow.findOne({ _id: aceptid });
 
         findrequest.status = 1;
 
@@ -68,7 +68,7 @@ exports.acceptrequestrequest = async (req, res) => {
 exports.getonealluserrequest = async (req, res) => {
     try {
         const id = req.user._id;
-        const findrequest = await Follow.find({ followerId: id, status: 0 }).populate('userId');  ;
+        const findrequest = await Follow.find({ followerId: id, status: 0 }).populate('userId');;
         res.status(200).json({
             success: true,
             data: findrequest,
@@ -87,9 +87,9 @@ exports.rejectrequest = async (req, res) => {
     try {
         const id = req.user._id;
 
-        const  aceptid  = req.query.id
+        const aceptid = req.query.id
 
-        const findrequest = await Follow.findOne({ _id:aceptid});
+        const findrequest = await Follow.findOne({ _id: aceptid });
 
         findrequest.status = 2;
 
@@ -109,30 +109,118 @@ exports.rejectrequest = async (req, res) => {
 
 exports.getallfollowuser = async (req, res) => {
     try {
+        const userId = req.user._id;
+        const users = await User.aggregate([
+            {
+                $match: {
+                    _id: { $ne: userId }
+                }
+            },
+            {
+                $lookup: {
+                    from: "follows",
+                    let: { userId: userId, followerId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$userId", "$$userId"] },
+                                        { $eq: ["$followerId", "$$followerId"] }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "followStatus"
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    userName: 1,
+                    image: 1,
+                    followStatus: {
+                        $cond: [
+                            { $eq: [{ $size: "$followStatus" }, 0] },
+                            null,
+                            {
+                                $switch: {
+                                    branches: [
+                                        { case: { $eq: [{ $arrayElemAt: ["$followStatus.status", 0] }, 0] }, then: 0 },
+                                        { case: { $eq: [{ $arrayElemAt: ["$followStatus.status", 0] }, 1] }, then: 1 },
+                                        { case: { $eq: [{ $arrayElemAt: ["$followStatus.status", 0] }, 2] }, then: 2 }
+                                    ],
+                                    default: null
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        ]);
+
+        res.status(200).json({
+            success: true,
+            data: users,
+            message: "All users retrieved successfully"
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+exports.getoneuserallfollowing = async (req, res) => {
+    try {
       const userId = req.user._id;
       const users = await User.aggregate([
         {
           $match: {
-            _id: { $ne: userId }
+            _id: userId
           }
         },
         {
           $lookup: {
             from: "follows",
-            let: { userId: userId, followerId: "$_id" },
+            localField: "_id",
+            foreignField: "userId",
+            as: "followingUsers"
+          }
+        },
+        {
+          $addFields: {
+            followedUserIds: {
+              $map: {
+                input: {
+                  $filter: {
+                    input: "$followingUsers",
+                    as: "follow",
+                    cond: { $eq: ["$$follow.status", 1] }
+                  }
+                },
+                as: "follow",
+                in: "$$follow.followerId"
+              }
+            }
+          }
+        },
+        {
+          $lookup: {
+            from: "userdatas",
+            let: { followedUserIds: "$followedUserIds" },
             pipeline: [
               {
                 $match: {
                   $expr: {
-                    $and: [
-                      { $eq: ["$userId", "$$userId"] },
-                      { $eq: ["$followerId", "$$followerId"] }
-                    ]
+                    $in: ["$_id", "$$followedUserIds"]
                   }
                 }
               }
             ],
-            as: "followStatus"
+            as: "followedUsers"
           }
         },
         {
@@ -140,22 +228,8 @@ exports.getallfollowuser = async (req, res) => {
             _id: 1,
             userName: 1,
             image: 1,
-            followStatus: {
-                $cond: [
-                    { $eq: [{ $size: "$followStatus" }, 0] },
-                    null,
-                    {
-                      $switch: {
-                        branches: [
-                          { case: { $eq: [{ $arrayElemAt: ["$followStatus.status", 0] }, 0] }, then: 0 },
-                          { case: { $eq: [{ $arrayElemAt: ["$followStatus.status", 0] }, 1] }, then: 1 },
-                          { case: { $eq: [{ $arrayElemAt: ["$followStatus.status", 0] }, 2] }, then: 2 }
-                        ],
-                        default: null
-                      }
-                    }
-                  ]
-                }   
+            followedUsers: 1,
+            followCount: { $size: "$followedUsers" }
           }
         }
       ]);
@@ -163,7 +237,7 @@ exports.getallfollowuser = async (req, res) => {
       res.status(200).json({
         success: true,
         data: users,
-        message: "All users retrieved successfully"
+        message: "Follow records retrieved successfully"
       });
     } catch (error) {
       res.status(500).json({
@@ -173,3 +247,9 @@ exports.getallfollowuser = async (req, res) => {
     }
   };
   
+
+
+
+
+
+

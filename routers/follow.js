@@ -12,6 +12,7 @@ router.post('/rejectrequest',authorize,followcontroller.rejectrequest)
 
 router.get('/allrequestoneuser',authorize,followcontroller.getonealluserrequest)
 router.get('/followuser',authorize,followcontroller.getallfollowuser)
+router.get('/following',authorize,followcontroller.getoneuserallfollowing)
 
 
 
