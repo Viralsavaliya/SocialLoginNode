@@ -107,15 +107,30 @@ exports.rejectrequest = async (req, res) => {
     }
 }
 
+
+
+
+//getallfollowuser
 exports.getallfollowuser = async (req, res) => {
     try {
         const userId = req.user._id;
+        const { search } = req.query;
+
+        const matchStage = search
+            ? {
+                  $match: {
+                      _id: { $ne: userId },
+                      userName: { $regex: search, $options: 'i' }
+                  }
+              }
+            : {
+                  $match: {
+                      _id: { $ne: userId }
+                  }
+              };
+
         const users = await User.aggregate([
-            {
-                $match: {
-                    _id: { $ne: userId }
-                }
-            },
+            matchStage,
             {
                 $lookup: {
                     from: "follows",
@@ -163,7 +178,7 @@ exports.getallfollowuser = async (req, res) => {
         res.status(200).json({
             success: true,
             data: users,
-            message: "All users retrieved successfully"
+            message: "Users retrieved successfully"
         });
     } catch (error) {
         res.status(500).json({
@@ -172,6 +187,13 @@ exports.getallfollowuser = async (req, res) => {
         });
     }
 };
+
+
+
+
+
+
+
 
 exports.getoneuserallfollowing = async (req, res) => {
     try {

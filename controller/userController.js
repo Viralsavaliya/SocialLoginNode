@@ -24,9 +24,6 @@ exports.getalluser = async (req, res) => {
 
 
 
-
-  
-
 exports.addUser = async (req, res) => {
 
     try {
