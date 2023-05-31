@@ -5,14 +5,33 @@ const path = require("path");
 const Like = require("../models/likeModel");
 const { ObjectId } = require('mongoose').Types;
 
+
+
 exports.getallpost = async (req, res) => {
   try {
     const userId = new ObjectId(req.user.id);
+    console.log(userId);
     const page = parseInt(req.query.page) || 1; // Current page number
     const limit = parseInt(req.query.limit) || 3; // Number of posts per page
 
     const pipeline = [
-      { $match: { status: 'Approved' } },
+      {
+        $lookup: {
+          from: 'follows',
+          localField: 'userid',
+          foreignField: 'followerId',
+          as: 'followers',
+        },
+      },
+      {
+        $match: {
+          $or: [
+            { 'followers.userId': userId, 'followers.status': 1 },
+            { userid: userId },
+          ],
+          status: 'Approved',
+        },
+      },
       {
         $lookup: {
           from: 'likes',
@@ -21,7 +40,7 @@ exports.getallpost = async (req, res) => {
             {
               $match: {
                 $expr: { $eq: ['$postid', '$$postId'] },
-                userid: userId
+                userid: userId,
               },
             },
           ],
@@ -114,7 +133,7 @@ exports.getallpost = async (req, res) => {
           userimage: { $arrayElemAt: ['$user.image', 0] },
           likescount: 1,
           isLikedByUser: 1,
-          comments: 1
+          comments: 1,
         },
       },
       {
@@ -126,7 +145,23 @@ exports.getallpost = async (req, res) => {
     ];
 
     const countPipeline = [
-      { $match: { status: 'Approved' } },
+      {
+        $lookup: {
+          from: 'follows',
+          localField: 'userid',
+          foreignField: 'followerId',
+          as: 'followers',
+        },
+      },
+      {
+        $match: {
+          $or: [
+            { 'followers.userId': userId, 'followers.status': 1 },
+            { userid: userId },
+          ],
+          status: 'Approved',
+        },
+      },
       { $count: 'total' }, // Count the total number of documents
     ];
 
@@ -156,6 +191,7 @@ exports.getallpost = async (req, res) => {
     });
   }
 };
+
 
 exports.addpost = async (req, res) => {
   try {
