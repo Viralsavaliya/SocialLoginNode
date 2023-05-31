@@ -110,7 +110,7 @@ exports.rejectrequest = async (req, res) => {
 
 
 
-//getallfollowuser
+
 exports.getallfollowuser = async (req, res) => {
     try {
         const userId = req.user._id;
@@ -130,7 +130,6 @@ exports.getallfollowuser = async (req, res) => {
               };
 
         const users = await User.aggregate([
-            matchStage,
             {
                 $lookup: {
                     from: "follows",
@@ -150,6 +149,7 @@ exports.getallfollowuser = async (req, res) => {
                     as: "followStatus"
                 }
             },
+            matchStage,
             {
                 $project: {
                     _id: 1,
@@ -187,6 +187,13 @@ exports.getallfollowuser = async (req, res) => {
         });
     }
 };
+
+
+
+
+
+
+
 
 
 
