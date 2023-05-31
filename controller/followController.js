@@ -68,7 +68,7 @@ exports.acceptrequestrequest = async (req, res) => {
 exports.getonealluserrequest = async (req, res) => {
     try {
         const id = req.user._id;
-        const findrequest = await Follow.find({ followerId: id, status: 0 }).populate('userId');;
+        const findrequest = await Follow.find({ followerId: id, status: 0 }).populate('userId');
         res.status(200).json({
             success: true,
             data: findrequest,
@@ -247,6 +247,27 @@ exports.getoneuserallfollowing = async (req, res) => {
     }
   };
   
+  
+exports.deletefollower = async (req, res) => {
+    try {
+        const id = req.user._id;
+        const userId = req.query.id
+
+        const deletefollower = await Follow.deleteOne({ followerId:userId , userId: id })
+
+      
+        res.status(200).json({
+            success: true,
+            data: deletefollower,
+            message: 'followers remove successfully'
+        })
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message
+        })
+    }
+}
 
 
 

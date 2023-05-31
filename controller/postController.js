@@ -157,11 +157,6 @@ exports.getallpost = async (req, res) => {
   }
 };
 
-
-
-
-
-
 exports.addpost = async (req, res) => {
   try {
     let datafilename;
@@ -278,7 +273,6 @@ exports.updatepost = async (req, res) => {
     });
   }
 }
-
 
 
 exports.oneuserpost = async (req, res) => {
