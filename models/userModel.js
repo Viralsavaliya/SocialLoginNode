@@ -60,8 +60,10 @@ const userSchema = new Schema(
 );
 
 userSchema.index({
-  address : "2dsphere",
+  'address.coordinates' : "2dsphere",
 });
+
+
 
 const user = mongoose.model("userdata", userSchema);
 

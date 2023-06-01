@@ -202,10 +202,18 @@ exports.addpost = async (req, res) => {
         cb(null, "uploads");
       },
       filename: (req, file, cb) => {
-        cb(
-          null,
-          file.fieldname + "-" + Date.now() + "." + file.originalname.split(".").pop()
-        );
+        const fileExtension = file.originalname.split(".").pop();
+
+        if (fileExtension === "jpeg" || fileExtension === "jpg") {
+          // Handle JPEG images
+          cb(null, "image-" + Date.now() + "." + fileExtension);
+        } else if (fileExtension === "mp4") {
+          // Handle MP4 videos
+          cb(null, "video-" + Date.now() + "." + fileExtension);
+        } else {
+          // Handle other file types or show an error
+          cb(new Error("Unsupported file type"));
+        }
       },
     });
 
@@ -218,9 +226,9 @@ exports.addpost = async (req, res) => {
           message: "Error uploading file",
         });
       }
-
       const fileName = req.file?.filename;
       datafilename = fileName;
+      console.log(datafilename, "datafilename");
 
       // Proceed with creating the post
       const { id } = req.user;
@@ -228,11 +236,17 @@ exports.addpost = async (req, res) => {
 
       const newPost = {
         title,
-        image: datafilename,
         discripation,
         userid: id,
       };
-
+      if (req.file) {
+        const fileExtension = req.file.originalname.split(".").pop();
+        if (fileExtension === "jpeg" || fileExtension === "jpg") {
+          newPost.image = datafilename;
+        } else if (fileExtension === "mp4") {
+          newPost.video = datafilename;
+        }
+      }
       const post = await Post.create(newPost);
 
       return res.status(200).json({
@@ -314,11 +328,17 @@ exports.updatepost = async (req, res) => {
 exports.oneuserpost = async (req, res) => {
   try {
     const { id } = req.user;
-    const post = await Post.find({ userid: id });
+    const limitValue = req.query.limit;
+    let pageValue = req.query.page; 
+    const skipValue = limitValue * pageValue;
+
+    const post = await Post.find({ userid: id }).limit(limitValue).skip(skipValue);
+
+    const totalpost = await Post.find({ userid: id }).count();
 
     res.status(200).json({
       success: true,
-      data: post,
+      data: {post:post, total:totalpost},
       message: "Post get successfully"
     });
   } catch (error) {
@@ -337,12 +357,20 @@ exports.deletepost = async (req, res) => {
 
 
     const image = findpost.image;
+    const video = findpost.video;
+
     if (image) {
-      console.log(image);
       if (fs.existsSync(path.join(__dirname, "../uploads/" + image))) {
         fs.unlinkSync(path.join(__dirname, "../uploads/" + image));
       }
     }
+
+    if (video) {
+      if (fs.existsSync(path.join(__dirname, "../uploads/" + video))) {
+        fs.unlinkSync(path.join(__dirname, "../uploads/" + video));
+      }
+    }
+
     const deletepost = await Post.deleteOne({ _id: id });
 
     res.status(200).json({

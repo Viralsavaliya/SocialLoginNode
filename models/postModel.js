@@ -9,6 +9,9 @@ const postschema = new Schema(
     image: {
       type: String,
     },
+    video:{
+      type:String,
+    },
     discripation: {
       type: String,
     },
