@@ -12,7 +12,7 @@ exports.getallpost = async (req, res) => {
     const userId = new ObjectId(req.user.id);
     console.log(userId);
     const page = parseInt(req.query.page) || 1; // Current page number
-    const limit = parseInt(req.query.limit) || 3; // Number of posts per page
+    const limit = parseInt(req.query.limit) || 5; // Number of posts per page
 
     const pipeline = [
       {
