@@ -127,6 +127,7 @@ exports.getallpost = async (req, res) => {
           title: 1,
           discripation: 1,
           image: 1,
+          video :1,
           status: 1,
           userid: 1,
           userName: { $arrayElemAt: ['$user.userName', 0] },
@@ -204,7 +205,7 @@ exports.addpost = async (req, res) => {
       filename: (req, file, cb) => {
         const fileExtension = file.originalname.split(".").pop();
 
-        if (fileExtension === "jpeg" || fileExtension === "jpg") {
+        if (fileExtension === "jpeg" || fileExtension === "jpg" || fileExtension === "png") {
           // Handle JPEG images
           cb(null, "image-" + Date.now() + "." + fileExtension);
         } else if (fileExtension === "mp4") {
@@ -241,7 +242,7 @@ exports.addpost = async (req, res) => {
       };
       if (req.file) {
         const fileExtension = req.file.originalname.split(".").pop();
-        if (fileExtension === "jpeg" || fileExtension === "jpg") {
+        if (fileExtension === "jpeg" || fileExtension === "jpg" || fileExtension === "png") {
           newPost.image = datafilename;
         } else if (fileExtension === "mp4") {
           newPost.video = datafilename;
