@@ -29,17 +29,15 @@ const io = new Server(server,{
         methods:["GET","POST"],
     }
 });
-
-// const socketHandler = require('./controller/chatController');
+const socketHandler = require('./controller/chatController');
 
 
 io.on('connection', (socket) => {
-  console.log(socket.id, 'connection');
-    socket.on('send_message',(data)=>{
-    console.log(data);
-    socket.broadcast.emit('recive_message', data)
-    })
-  
+  socketHandler(socket,io)
+    // socket.on('send_message',(data)=>{
+    // console.log(data);
+    // socket.broadcast.emit('recive_message', data)
+    // })
   socket.on('disconnect', () => {
     console.log('Disconnect');
   });
