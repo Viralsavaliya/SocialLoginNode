@@ -1,8 +1,13 @@
 const Message = require("../models/messageModel");
-const { io } = require("../app");
 let userMap = []
 
-module.exports =async (socket, io) => {
+// const {datafilename} =require('./messageController')
+// console.log(datafilename,"dsfghj");
+
+
+
+
+module.exports = async (socket, io) => {
     userMap.push({
         user_id: socket.handshake.query['user_id'],
         socket_id: socket.id,
@@ -16,6 +21,14 @@ module.exports =async (socket, io) => {
     socket.on("send_message", async (messageNew) => {
         try {
             const { senderId, message, receiverId, name } = messageNew
+            console.log(messageNew, "message");
+            // if (!message) {
+            //     return socket.emit("message", {
+            //         success: false,
+            //         message: "message is empty.",
+            //       });
+            //  }
+
             const newMsg = {
                 senderId,
                 receiverId,
@@ -39,17 +52,17 @@ module.exports =async (socket, io) => {
         }
     });
 
-            await socket.on("getMessages", async (message) => {
-                console.log(message,"message");
-                // return false;
-                const receiverId = message.receiverId;
-                const senderId = message.senderId;
-                const messageAll = await Message.find({
-                    $or: [
-                        { receiverId: receiverId, senderId: senderId },
-                        { senderId: receiverId, receiverId: senderId },
-                    ],
-                });
-                socket.emit("allMessages", messageAll);
-            });
+    await socket.on("getMessages", async (message) => {
+        console.log(message, "message");
+        // return false;
+        const receiverId = message.receiverId;
+        const senderId = message.senderId;
+        const messageAll = await Message.find({
+            $or: [
+                { receiverId: receiverId, senderId: senderId },
+                { senderId: receiverId, receiverId: senderId },
+            ],
+        });
+        socket.emit("allMessages", messageAll);
+    });
 };
