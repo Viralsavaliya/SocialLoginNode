@@ -20,7 +20,7 @@ module.exports = async (socket, io) => {
     });
     socket.on("send_message", async (messageNew) => {
         try {
-            const { senderId, message, receiverId, name } = messageNew
+            const { senderId, message, receiverId, name, time } = messageNew
             console.log(messageNew, "message");
             // if (!message) {
             //     return socket.emit("message", {
@@ -40,6 +40,7 @@ module.exports = async (socket, io) => {
                 receiverId: newMsg.receiverId,
                 message: newMsg.message,
                 name: name,
+                time:time
             }
             userMap.map((el) => {
                 if (el.user_id == receiverId) {
