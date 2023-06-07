@@ -49,6 +49,8 @@ exports.addmessage = async (req, res) => {
         cb(null, "image-" + Date.now() + "." + fileExtension);
       } else if (fileExtension === "mp4") {
         cb(null, "video-" + Date.now() + "." + fileExtension);
+      }else if (fileExtension === "doc" || fileExtension === "docx" || fileExtension === "pdf" || fileExtension === "ppt" || fileExtension === "pptx") {
+        cb(null, "file-" + Date.now() + "." + fileExtension);
       } else {
         cb(new Error("Unsupported file type"));
       }
