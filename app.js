@@ -34,10 +34,6 @@ const socketHandler = require('./controller/chatController');
 
 io.on('connection', (socket) => {
   socketHandler(socket,io)
-    // socket.on('send_message',(data)=>{
-    // console.log(data);
-    // socket.broadcast.emit('recive_message', data)
-    // })
   socket.on('disconnect', () => {
     console.log('Disconnect');
   });

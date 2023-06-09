@@ -12,6 +12,10 @@ const messageSchema = mongoose.Schema(
         },
         message: {
             type: String,
+        },
+        status:{
+            type:Number,
+            default:0
         }
     },
     {

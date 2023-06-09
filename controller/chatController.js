@@ -34,17 +34,21 @@ module.exports = async (socket, io) => {
                 receiverId,
                 message,
             };
-            await Message.create(newMsg);
+            const newmessage = await Message.create(newMsg);
             const result = {
                 senderId: newMsg.senderId,
                 receiverId: newMsg.receiverId,
                 message: newMsg.message,
                 name: name,
-                time:time
+                time:time,
+                _id:newmessage._id
             }
             userMap.map((el) => {
                 if (el.user_id == receiverId) {
                     io.sockets.sockets.get(el.socket_id)?.emit("recive_message", result)
+                }
+                if(el.user_id == senderId){
+                    io.sockets.sockets.get(el.socket_id)?.emit("send_message", result)
                 }
             })
         }
@@ -58,10 +62,12 @@ module.exports = async (socket, io) => {
         // return false;
         const receiverId = message.receiverId;
         const senderId = message.senderId;
+        const Status = 0;
+        const recivestatus = 0 || 1
         const messageAll = await Message.find({
             $or: [
-                { receiverId: receiverId, senderId: senderId },
-                { senderId: receiverId, receiverId: senderId },
+                { receiverId: receiverId, senderId: senderId , status:Status},
+                { senderId: receiverId, receiverId: senderId , status:recivestatus},
             ],
         });
         socket.emit("allMessages", messageAll);
