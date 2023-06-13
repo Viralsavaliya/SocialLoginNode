@@ -68,7 +68,7 @@ exports.addmessage = async (req, res) => {
     }
     const fileName = req.file?.filename;
     datafilename = fileName;
-    console.log(datafilename, "datafilename");
+    // console.log(datafilename, "datafilename");
 
     res.status(200).json({
       success: true,

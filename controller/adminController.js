@@ -102,7 +102,7 @@ exports.adminlogin = async (req, res) => {
         }
 
         if (!finduser) {
-            console.log(123);
+            // console.log(123);
             finduser = new User();
             finduser.userName = name;
 

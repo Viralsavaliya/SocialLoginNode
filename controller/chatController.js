@@ -54,7 +54,7 @@ module.exports = async (socket, io) => {
     });
 
     socket.on("deletedMessages",async (message) =>{
-        console.log(message);
+        // console.log(message);
         const id = message.messageid
         const con = message.con
 
@@ -68,7 +68,7 @@ module.exports = async (socket, io) => {
             deltedmessage.status = 2
         }
         await deltedmessage.save();
-        console.log(deltedmessage,"deltedmessage");
+        // console.log(deltedmessage,"deltedmessage");
         // const deletedMessageResponse = {
         //     _id: deltedmessage._id,
         //     status: deltedmessage.status,
