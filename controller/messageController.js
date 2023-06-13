@@ -78,43 +78,52 @@ exports.addmessage = async (req, res) => {
   });
 };
 
-exports.deletemessage = async (req, res) => {
-  try {
-    const { id} = req.params
-    const deletionOption = req.query.deleteoptions
+// exports.deletemessage = async (req, res) => {
+//   try {
+//     const { id} = req.params
+//     const deletionOption = req.query.deleteoptions
     
     
-    const deleteMessage = await Message.findOne({_id: id})
+//     const deleteMessage = await Message.findOne({_id: id})
     
-    if(deletionOption === 'only-me'){
-      deleteMessage.status = 1;
-      const updatestatus = await deleteMessage.save()
-     return res.status(200).json({
-        success:true,
-        data:updatestatus,
-        message:"your message only show reciver user"
-      })
-    }
-    if(deletionOption === "everyone"){
-      deleteMessage.status = 2;
-      const updatestatus = await deleteMessage.save()
-    return res.status(200).json({
-        success:true,
-        data:updatestatus,
-        message:"your message has been deleted both side"
-      })  
-    }
+//     if(deletionOption === 'only-me'){
+//       deleteMessage.status = 1;
+//       const updatestatus = await deleteMessage.save()
+//      return res.status(200).json({
+//         success:true,
+//         data:updatestatus,
+//         message:"your message only show reciver user"
+//       })
+//     }
+//     if(deletionOption === "everyone"){
+//       deleteMessage.status = 2;
+//       const updatestatus = await deleteMessage.save()
+//     return res.status(200).json({
+//         success:true,
+//         data:updatestatus,
+//         message:"your message has been deleted both side"
+//       })  
+//     }
+//     if(deletionOption === "delete"){
+//       deleteMessage.status = 3;
+//       const updatestatus = await deleteMessage.save()
+//     return res.status(200).json({
+//         success:true,
+//         data:updatestatus,
+//         message:"your message has been deleted reciver side"
+//       })  
+//     }
 
     
   
     
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    })
-  }
-}
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message
+//     })
+//   }
+// }
 
 
 

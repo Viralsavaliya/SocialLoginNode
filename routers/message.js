@@ -9,7 +9,7 @@ router.get('/',authorize,messcontroller.getallmeasage)
 router.get("/chatpage", authorize, messcontroller.chatPage);
 // router.post("/imageupload", authorize,messcontroller.addmessage);
 router.post("/imageupload", authorize,messcontroller.addmessage);
-router.delete("/:id", authorize,messcontroller.deletemessage);
+// router.delete("/:id", authorize,messcontroller.deletemessage);
 
  
 

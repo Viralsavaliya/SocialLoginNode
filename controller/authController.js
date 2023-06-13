@@ -10,7 +10,7 @@ exports.register = async (req, res) => {
     try {
         const { userName, email, password, age } = req.body
 
-        const finduser = await User.findOne({ email });
+        const finduser = await User.findOne({ email, status: false });
 
         if (finduser) {
             const error = new error('User alreasdy extis');
@@ -46,10 +46,9 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
     try {
-        const { email, password, googleId,  githubId, userEmail, name } = req.body;
+        const { email, password, googleId, githubId, userEmail, name } = req.body;
 
         let findUsers = {};
-
 
         if (email) {
             findUsers.email = email;
@@ -59,28 +58,28 @@ exports.login = async (req, res) => {
             findUsers.githubId = githubId;
         }
 
-        let finduser = await User.findOne(findUsers);
-        let findemailuser = await User.findOne({ email: userEmail });
+        let finduser = await User.findOne({ email: findUsers.email, deletedstatus: true });
+        let findemailuser = await User.findOne({ email: userEmail, deletedstatus: true });
 
-        if(finduser){
-            if(finduser.status === false){
-                const error = new error('User activity is disabal');
-                error.statuscode = 404;
-                throw error
-            }
-        }
-        if(findemailuser){
-            if(findemailuser.status === false){
-                const error = new error('User activity is disabal');
-                error.statuscode = 404;
-                throw error
+        if (finduser) {
+            if (finduser.status === false) {
+                throw new Error('User activity is disabled');
             }
         }
 
-      
-       
+        if (!finduser) {
+            const error = new Error('User not found');
+            error.statusCode = 422;
+            throw error;
+        }
+
         if (findemailuser) {
-            findemailuser.userName =  findemailuser.userName ?  findemailuser.userName : name  ;
+            if (findemailuser.status === false) {
+                throw new Error('User activity is disabled');
+            }
+
+            // Update existing user with the provided name and authentication IDs
+            findemailuser.userName = findemailuser.userName ? findemailuser.userName : name;
 
             if (googleId) {
                 findemailuser.googleId = findemailuser.googleId || googleId;
@@ -92,30 +91,27 @@ exports.login = async (req, res) => {
 
             await findemailuser.save();
 
-            if (googleId) {
-                findemailuser.googleId = googleId;
-            } else if (githubId) {
-                findemailuser.githubId = githubId;
-            } 
-
             const payload = {
                 id: findemailuser.id,
                 email: findemailuser.email
             };
-    
+
             const token = jwt.sign(payload, process.env.SECRET_KEY, {
-                expiresIn: "24h"
+                expiresIn: '24h'
             });
 
             return res.status(200).json({
                 success: true,
-                data:{user:finduser,token:token},
-                message: "User login successfully"
+                data: { user: finduser, token: token },
+                message: 'User login successfully'
             });
         }
-      
+
+        if (finduser.deletedstatus === false) {
+            throw new Error('Your account has been deleted');
+        }
+
         if (!finduser) {
-            console.log(123);
             finduser = new User();
             finduser.userName = name;
 
@@ -128,30 +124,18 @@ exports.login = async (req, res) => {
             finduser.email = userEmail;
 
             await finduser.save();
-            
-
-            if (googleId) {
-                finduser.googleId = googleId;
-            } else if (githubId) {
-                finduser.githubId = githubId;
-            }
 
             return res.status(200).json({
                 success: true,
-                message: "User login successfully"
+                message: 'User login successfully'
             });
-        }
-        if(!finduser)   {
-            const error = new Error("user not user")
-            error.statusCode = 422
-            throw error
         }
 
         if (email && password) {
             const validpw = await bcrypt.compare(password, finduser.password);
 
             if (!validpw) {
-                throw new Error("Invalid email or password");
+                throw new Error('Invalid email or password');
             }
         }
 
@@ -161,7 +145,7 @@ exports.login = async (req, res) => {
         };
 
         const token = jwt.sign(payload, process.env.SECRET_KEY, {
-            expiresIn: "24h"
+            expiresIn: '24h'
         });
 
         finduser.login_token = token;
@@ -169,19 +153,19 @@ exports.login = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            data: {user:finduser,token:token},
-            message: "User login successfully"
+            data: { user: finduser, token: token },
+            message: 'User login successfully'
         });
     } catch (error) {
-        res.status(400).json
-            ({
-                success: false,
-                message: error.message
-            });
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
     }
 };
 
-exports.socialloginpassword = async (req,res) =>{
+
+exports.socialloginpassword = async (req, res) => {
     try {
         const authorization = req.headers['authorization'];
         const splitAuthorization = authorization.split(' ');
@@ -189,14 +173,14 @@ exports.socialloginpassword = async (req,res) =>{
         const token = splitAuthorization[1];
 
         const decode = await jwt.verify(token, process.env.SECRET_KEY)
-        const {email} = decode
+        const { email } = decode
 
-        const {password ,oldpassword} = req.body
-        const finduser = await User.findOne({email:email})
+        const { password, oldpassword } = req.body
+        const finduser = await User.findOne({ email: email })
 
-        if(oldpassword){
+        if (oldpassword) {
             const confirmpw = await bcrypt.compare(oldpassword, finduser.password);
-            if(!confirmpw){
+            if (!confirmpw) {
                 throw new Error("password mismatch");
             }
         }
@@ -208,14 +192,14 @@ exports.socialloginpassword = async (req,res) =>{
         await finduser.save();
 
         return res.status(200).json({
-            success:true,
-            data:finduser,
-            message:"password update successfully"
+            success: true,
+            data: finduser,
+            message: "password update successfully"
         })
     } catch (error) {
         return res.status(422).json({
-            success:false,
-            message:error.message
+            success: false,
+            message: error.message
         })
     }
 }
@@ -234,9 +218,21 @@ let transporter = nodemailer.createTransport({
 })
 
 exports.sendEmail = async (req, res) => {
-    const { email } = req.body
-    
-    const user = await User.findOne({ email });
+    let email;
+    email = req.body.email; 
+
+
+    if (!email) {
+        const authorization = req.headers['authorization'];
+        const splitAuthorization = authorization.split(' ');
+        const tokena = splitAuthorization[1];
+        const decode = await jwt.verify(tokena, process.env.SECRET_KEY)
+         email = decode.email
+    }
+
+
+
+    const user = await User.findOne({ email:email, deletedstatus: true });
 
     if (!user) {
         res.status(200).json({
@@ -254,16 +250,16 @@ exports.sendEmail = async (req, res) => {
     // const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "5m" })
 
     const otpas = Math.floor(Math.random() * 1000000);;
-    const userid = user.id
+    const userid = user?.id
 
     const payload = {
         id: userid
     }
 
-    const token =   jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "5m" })
+    const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "5m" })
 
-  
-   
+
+
 
     let info = await transporter.sendMail({
         from: `"node" <${Emailuser}>`,
@@ -275,13 +271,13 @@ exports.sendEmail = async (req, res) => {
     })
 
 
-    
+
     user.otp = otpas;
     await user.save();
 
     return res.status(200).json({
         success: true,
-        data:token,
+        data: token,
         message: "your mail successfully"
     })
 
@@ -290,6 +286,7 @@ exports.sendEmail = async (req, res) => {
 
 exports.verificationotp = async (req, res) => {
     try {
+        const {data} = req.query
         const authorization = req.headers['authorization'];
         const splitAuthorization = authorization.split(' ');
         const token = splitAuthorization[1];
@@ -300,30 +297,33 @@ exports.verificationotp = async (req, res) => {
         const { otp } = req.body;
 
         if (!user) {
-        return res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "user not found"
             })
-        }   
+        }
         const userotp = user.otp
 
-        if (otp!== userotp) {
-            return  res.status(400).json({
+        if (otp !== userotp) {
+            return res.status(400).json({
                 success: false,
                 message: "invalid otp"
             })
         }
 
         user.otp = null;
+        if(data === "Profile"){
+            user.deletedstatus = false;
+        }
         await user.save();
-    
+
 
         return res.status(200).json({
             success: true,
             message: "OTP verification successful",
-          });
+        });
 
-        
+
     } catch (error) {
         return res.status(400).json({
             success: false,
@@ -332,7 +332,7 @@ exports.verificationotp = async (req, res) => {
     }
 }
 
-exports.resetpassword = async (req,res) => {
+exports.resetpassword = async (req, res) => {
     try {
         const authorization = req.headers['authorization'];
         const splitAuthorization = authorization.split(' ');
@@ -344,11 +344,11 @@ exports.resetpassword = async (req,res) => {
         const { password } = req.body;
 
         if (!user) {
-        return res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "user not found"
             })
-        }   
+        }
         // const userpassword = user.password
         const hashpw = await bcrypt.hash(password, 10)
         user.password = hashpw;
@@ -358,7 +358,7 @@ exports.resetpassword = async (req,res) => {
         return res.status(200).json({
             success: true,
             message: "Password Reset successful",
-          });
+        });
 
     } catch (error) {
         return res.status(400).json({

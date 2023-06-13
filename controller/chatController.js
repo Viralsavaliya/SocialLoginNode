@@ -8,26 +8,21 @@ let userMap = []
 
 
 module.exports = async (socket, io) => {
+    
     userMap.push({
         user_id: socket.handshake.query['user_id'],
         socket_id: socket.id,
     })
 
     socket.on('join', (userId) => {
-        console.log("join");
-        console.log(userId);
+        // console.log("join");
+        // console.log(userId);
         socket.join(userId);
     });
     socket.on("send_message", async (messageNew) => {
         try {
             const { senderId, message, receiverId, name, time } = messageNew
-            console.log(messageNew, "message");
-            // if (!message) {
-            //     return socket.emit("message", {
-            //         success: false,
-            //         message: "message is empty.",
-            //       });
-            //  }
+            // console.log(messageNew, "message");
 
             const newMsg = {
                 senderId,
@@ -41,7 +36,8 @@ module.exports = async (socket, io) => {
                 message: newMsg.message,
                 name: name,
                 time:time,
-                _id:newmessage._id
+                _id:newmessage._id,
+                status:newmessage.status
             }
             userMap.map((el) => {
                 if (el.user_id == receiverId) {
@@ -57,17 +53,36 @@ module.exports = async (socket, io) => {
         }
     });
 
+    socket.on("deletedMessages",async (message) =>{
+        console.log(message);
+        const id = message.messageid
+        const con = message.con
+
+        const deltedmessage = await Message.findOne({_id:id});
+
+        if(con === "delete"){
+            deltedmessage.status = 3
+        }else if(con === "only-me"){
+            deltedmessage.status = 1
+        }else if(con === "everyone"){
+            deltedmessage.status = 2
+        }
+        await deltedmessage.save();
+        console.log(deltedmessage,"deltedmessage");
+        // const deletedMessageResponse = {
+        //     _id: deltedmessage._id,
+        //     status: deltedmessage.status,
+        //   };
+          socket.emit("deleteMessagereplay", deltedmessage); 
+    })
+
     await socket.on("getMessages", async (message) => {
-        console.log(message, "message");
-        // return false;
         const receiverId = message.receiverId;
         const senderId = message.senderId;
-        const Status = 0;
-        const recivestatus = 0 || 1
         const messageAll = await Message.find({
             $or: [
-                { receiverId: receiverId, senderId: senderId , status:Status},
-                { senderId: receiverId, receiverId: senderId , status:recivestatus},
+                { receiverId: receiverId, senderId: senderId },
+                { senderId: receiverId, receiverId: senderId },
             ],
         });
         socket.emit("allMessages", messageAll);

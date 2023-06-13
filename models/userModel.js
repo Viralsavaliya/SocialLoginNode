@@ -52,6 +52,10 @@ const userSchema = new Schema(
     status:{
       type:Boolean,
       default:true
+    },
+    deletedstatus:{
+      type:Boolean,
+      default:true
     }
   },
   {

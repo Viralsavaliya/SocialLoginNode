@@ -15,6 +15,8 @@ router.get('/',authorize,usercontroller.getalluser)
 router.get('/profile',authorize,usercontroller.getoneuser)
 router.put('/update-profile',authorize,usercontroller.updateprofile)
 router.post('/upload-image',authorize,usercontroller.uploadimage)
+router.post('/deletedaccount',authorize,usercontroller.deletedaccount)
+
 
 
 

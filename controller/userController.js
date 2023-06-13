@@ -63,6 +63,8 @@ exports.login = async (req, res) => {
             throw error
         }
 
+       
+
         const validpw = await bcrypt.compare(password, finduser.password)
 
         if (!validpw) {
@@ -184,7 +186,7 @@ const storage = multer.diskStorage({
   });
   const upload = multer({ storage: storage }).single("file");
   
-  exports.uploadimage = async (req, res) => {
+exports.uploadimage = async (req, res) => {
     try {
       upload(req, res, async function (err) {
         const fileName = req.file;
@@ -206,7 +208,27 @@ const storage = multer.diskStorage({
     }
   };
 
+exports.deletedaccount = async (req, res) => {
+    try {
+        const id = req.user;
+        const finduser = await User.findOne({_id:id});
 
+        finduser.deletedstatus = false;
+
+        const updateuser =  await finduser.save();
+
+        return res.status(200).json({
+            success: true,
+            data:updateuser,
+            message:"Deleted message successfully"
+        })
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            message:error.message
+        })
+    }
+}
 
 
 
