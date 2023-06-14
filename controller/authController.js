@@ -2,7 +2,7 @@ const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken')
 const nodemailer = require('nodemailer')
-
+const Notification = require('../models/notification')
 
 
 
@@ -219,7 +219,7 @@ let transporter = nodemailer.createTransport({
 
 exports.sendEmail = async (req, res) => {
     let email;
-    email = req.body.email; 
+    email = req.body.email;
 
 
     if (!email) {
@@ -227,12 +227,12 @@ exports.sendEmail = async (req, res) => {
         const splitAuthorization = authorization.split(' ');
         const tokena = splitAuthorization[1];
         const decode = await jwt.verify(tokena, process.env.SECRET_KEY)
-         email = decode.email
+        email = decode.email
     }
 
 
 
-    const user = await User.findOne({ email:email, deletedstatus: true });
+    const user = await User.findOne({ email: email, deletedstatus: true });
 
     if (!user) {
         res.status(200).json({
@@ -286,7 +286,7 @@ exports.sendEmail = async (req, res) => {
 
 exports.verificationotp = async (req, res) => {
     try {
-        const {data} = req.query
+        const { data } = req.query
         const authorization = req.headers['authorization'];
         const splitAuthorization = authorization.split(' ');
         const token = splitAuthorization[1];
@@ -312,7 +312,7 @@ exports.verificationotp = async (req, res) => {
         }
 
         user.otp = null;
-        if(data === "Profile"){
+        if (data === "Profile") {
             user.deletedstatus = false;
         }
         await user.save();
@@ -367,6 +367,156 @@ exports.resetpassword = async (req, res) => {
         })
     }
 }
+
+
+const admin = require('firebase-admin');
+const serviceAccount = require('../new-project-386405-firebase-adminsdk-m4xmr-f7e4dc86d0.json');
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+});
+const messaging = admin.messaging();
+
+exports.sendNotification = async (req, res) => {
+    const { message, senderId, receiverId } = req.body;
+
+    const newnotification = {
+        message, 
+        senderId, 
+        receiverId 
+    }
+    // const message = {
+    //     token: token,
+    //     notification: {
+    //         title,
+    //         body,
+    //     },
+    // };
+
+    try {
+        const response = await Notification.create(newnotification);
+        console.log('Notification sent successfully:', response);
+        res.status(200).json({
+            success:true,
+            data: response,
+            message: "Notification Sent Successfully"
+        })
+    } catch (error) {
+        console.error('Error sending notification:', error);
+        res.status(400).json({
+            success:false,
+            message: error.message
+        })
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// exports.sendNotificationA =  async (req,res) {
+
+//     let message = {
+//         data: data,
+//         token: fcmReceiver?.token
+//     }
+
+//     try {
+//         await this.admin.messaging().send(message).then((value) => {
+//             console.log('Successfully sent message:', value);
+//         }).catch((error) => {
+//             console.log('Error sending message:', error?.errorInfo);
+//             throw error
+//         })
+//     } catch (e) {
+//         console.log('Error sending message:', e.message);
+//     }
+// }
 
 
 

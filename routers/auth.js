@@ -9,6 +9,7 @@ router.put('/password',authcontroller.socialloginpassword)
 router.post('/forget-password', authcontroller.sendEmail)
 router.post('/verificationotp', authcontroller.verificationotp)
 router.post('/resetpassword', authcontroller.resetpassword)
+router.post('/notifiction', authcontroller.sendNotification)
 
 
 
